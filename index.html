@@ -7,37 +7,59 @@
 <style>
 body {
     font-family: Arial;
+    margin: 0;
+    background: #0a0a0a; /* tumedam kui enne */
+    color: white;
     text-align: center;
-    margin-top: 60px;
-    background: #f5f5f5;
+    padding-top: 40px;
+}
+
+h1 {
+    font-size: 42px;
 }
 
 #question {
-    font-size: 40px;
-    margin: 30px;
+    font-size: 36px;
+    margin: 25px;
+    white-space: pre-line;
 }
 
 input {
-    font-size: 26px;
+    font-size: 24px;
     padding: 10px;
-    width: 400px;
+    width: 380px;
+    border-radius: 8px;
+    border: none;
+    outline: none;
 }
 
 button {
-    font-size: 22px;
+    font-size: 20px;
     padding: 10px 20px;
     margin-top: 15px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
 }
 
 #result, #score {
-    font-size: 22px;
     margin-top: 15px;
+    font-size: 20px;
 }
 
-#long {
+#list {
     margin-top: 40px;
-    white-space: pre-wrap;
-    font-size: 18px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 10px;
+    padding: 20px;
+}
+
+.word {
+    background: #1a1a1a;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #333;
 }
 </style>
 </head>
@@ -54,133 +76,161 @@ button {
 
 <div id="result"></div>
 <div id="score"></div>
-<div id="long"></div>
+
+<h2>📚 Sõnaloend</h2>
+<div id="list"></div>
 
 <script>
 
-// ----------------- ANDMED -----------------
+// ---------------- TÄIS LIST ----------------
 let sonad = {
     medialis: "keskmine",
     lateralis: "külgmine",
     proximalis: "lähimine",
     distalis: "kaugmine",
+    ülemine: "superior",
     abaluu: "scapula",
-    rangluu: "clavicula"
+    rangluu: "clavicula",
+    õlavarreluu: "humerus",
+    küünarluu: "ulna",
+    kodarluu: "radius",
+    käeluud: "ossa manus",
+    randmeluud: "ossa carpi",
+    kämblaluud: "ossa metacarpalia",
+    sõrmede luud: "ossa digitorum manus",
+    puusaluu: "os coxae",
+    reieluu: "femur",
+    põlvekeder: "patella",
+    sääreluu: "tibia",
+    pindluu: "fibula",
+    jalaluud: "ossa pedis",
+    kannaluud: "ossa tarsi",
+    pöialluud: "ossa metatarsalia",
+    varvaste luud: "ossa digitorum pedis",
+    kiiruluu: "os parietale",
+    oimuluu: "os temporale",
+    ristluu: "os sacrum",
+    õndraluu: "os coccygis",
+    kiiluluu: "os sphenoidale",
+    sõelluu: "os ethmoidale",
+    ülalõualuu: "maxilla",
+    sarnaluu: "os zygomaticum",
+    ninaluu: "os nasale",
+    pisarluu: "os lacrimale",
+    suulaeluu: "os palatinum",
+    sahkluu: "vomer",
+    alalõualuu: "mandibula",
+    keeleluu: "os hyoideum",
+    õlaliiges: "articulatio humeri",
+    küünarliiges: "articulatio cubiti",
+    kodarluu randmeliiges: "articulatio radiocarpea",
+    puusaliiges: "articulatio coxae",
+    põlveliiges: "articulatio genus",
+    hüppeliiges: "articulatio talocruralis",
+    lülisammas: "columna vertebralis",
+    rinnak: "sternum",
+    roided: "costae",
+    trapetslihas: "musculus trapezius",
+    seljalihas: "latissimus dorsi",
+    vahelihas: "diaphragma",
+    mälurilihas: "musculus masseter",
+    oimulihas: "musculus temporalis",
+    peapööritaja: "musculus sternocleidomastoideus",
+    kaelanahalihas: "platysma",
+    deltalihas: "deltoideus",
+    õlavarre-kakspealihas: "biceps brachii",
+    õlavarre-kolmpealihas: "triceps brachii",
+    õlavarrelihas: "musculus brachialis"
 };
 
-let kusimused = [
-    "Kuidas töötab süda?",
-    "Mis on ladina keel?",
-    "Miks on anatoomia õppimine oluline?"
-];
-
-let vastused = [];
-
+// ---------------- MUUTUJAD ----------------
 let keys = Object.keys(sonad);
 let currentKey = "";
-let correct = "";
+let correctAnswer = "";
 
 let score = 0;
-let total = keys.length;
+let firstTry = true;
 
-let isLong = false;
-let counter = 0;
-
-// ----------------- UUS KÜSIMUS -----------------
+// ---------------- KÜSIMUS ----------------
 function newQuestion() {
 
     keys = Object.keys(sonad);
 
     if (keys.length === 0) {
-        finish();
+        document.getElementById("question").innerText = "TEST LÕPETATUD 🎉";
         return;
     }
 
-    counter++;
-
-    // iga 3. on pikk küsimus
-    if (counter % 3 === 0 && kusimused.length > 0) {
-        isLong = true;
-
-        currentKey = kusimused.shift();
-
-        document.getElementById("question").innerText =
-            "Kirjuta vastus:\n\n" + currentKey;
-
-        return;
-    }
-
-    isLong = false;
+    firstTry = true;
 
     currentKey = keys[Math.floor(Math.random() * keys.length)];
     let value = sonad[currentKey];
 
     if (Math.random() < 0.5) {
-        document.getElementById("question").innerText = "Tõlgi: " + currentKey;
-        correct = value;
+        document.getElementById("question").innerText =
+            "Tõlgi:\n\n" + currentKey;
+        correctAnswer = value;
     } else {
-        document.getElementById("question").innerText = "Tõlgi: " + value;
-        correct = currentKey;
+        document.getElementById("question").innerText =
+            "Tõlgi:\n\n" + value;
+        correctAnswer = currentKey;
     }
 }
 
-// ----------------- KONTROLL -----------------
+// ---------------- KONTROLL ----------------
 function check() {
 
     let user = document.getElementById("answer").value.trim().toLowerCase();
     document.getElementById("answer").value = "";
 
-    // PIKK KÜSIMUS → ainult salvestus
-    if (isLong) {
-        vastused.push({q: currentKey, a: user});
-        document.getElementById("result").innerText = "Vastus salvestatud ✔";
-        newQuestion();
+    // VALE → uuesti proov
+    if (user !== correctAnswer) {
+        document.getElementById("result").innerText =
+            "Vale! Proovi uuesti 🔁";
+        firstTry = false;
         return;
     }
 
-    // SÕNAKÜSIMUS
-    if (user === correct) {
+    // ÕIGE
+    document.getElementById("result").innerText = "Õige! 🎉";
+
+    if (firstTry) {
         score++;
-        delete sonad[currentKey];
-        document.getElementById("result").innerText = "Õige! 🎉";
-    } else {
-        document.getElementById("result").innerText = "Vale!";
     }
 
+    delete sonad[currentKey];
+
     update();
+    renderList();
     newQuestion();
 }
 
-// ----------------- SKOOR -----------------
+// ---------------- UI ----------------
 function update() {
     let left = Object.keys(sonad).length;
+
     document.getElementById("score").innerText =
-        `Skoor: ${score}/${total} | Jäänud: ${left}`;
+        `Skoor: ${score} | Jäänud: ${left}`;
 }
 
-// ----------------- LÕPP -----------------
-function finish() {
+// ---------------- LIST ----------------
+function renderList() {
 
-    document.getElementById("question").innerText = "TEST LÕPETATUD 🎉";
+    let list = document.getElementById("list");
+    list.innerHTML = "";
 
-    document.getElementById("answer").style.display = "none";
-    document.querySelector("button").style.display = "none";
-
-    document.getElementById("result").innerText =
-        "Lõppskoor: " + score + "/" + total;
-
-    let text = "\nPIKAD VASTUSED:\n\n";
-
-    for (let v of vastused) {
-        text += v.q + "\n→ " + v.a + "\n\n";
+    for (let k in sonad) {
+        let div = document.createElement("div");
+        div.className = "word";
+        div.innerText = k + " = " + sonad[k];
+        list.appendChild(div);
     }
-
-    document.getElementById("long").innerText = text;
 }
 
-// start
+// ---------------- START ----------------
 newQuestion();
 update();
+renderList();
 
 document.addEventListener("keydown", e => {
     if (e.key === "Enter") check();
