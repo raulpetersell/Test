@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+<meta charset="UTF-8">
+<title>Ladina Õppija</title>
+
+<style>
+body {
+    font-family: Arial;
+    text-align: center;
+    margin-top: 60px;
+    background: #f5f5f5;
+}
+
+#question {
+    font-size: 40px;
+    margin: 30px;
+}
+
+input {
+    font-size: 26px;
+    padding: 10px;
+    width: 400px;
+}
+
+button {
+    font-size: 22px;
+    padding: 10px 20px;
+    margin-top: 15px;
+}
+
+#result, #score {
+    font-size: 22px;
+    margin-top: 15px;
+}
+
+#long {
+    margin-top: 40px;
+    white-space: pre-wrap;
+    font-size: 18px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Ladina Õppija</h1>
+
+<div id="question"></div>
+
+<input id="answer" autocomplete="off" />
+<br>
+<button onclick="check()">Kontrolli</button>
+
+<div id="result"></div>
+<div id="score"></div>
+<div id="long"></div>
+
+<script>
+
+// ----------------- ANDMED -----------------
+let sonad = {
+    medialis: "keskmine",
+    lateralis: "külgmine",
+    proximalis: "lähimine",
+    distalis: "kaugmine",
+    abaluu: "scapula",
+    rangluu: "clavicula"
+};
+
+let kusimused = [
+    "Kuidas töötab süda?",
+    "Mis on ladina keel?",
+    "Miks on anatoomia õppimine oluline?"
+];
+
+let vastused = [];
+
+let keys = Object.keys(sonad);
+let currentKey = "";
+let correct = "";
+
+let score = 0;
+let total = keys.length;
+
+let isLong = false;
+let counter = 0;
+
+// ----------------- UUS KÜSIMUS -----------------
+function newQuestion() {
+
+    keys = Object.keys(sonad);
+
+    if (keys.length === 0) {
+        finish();
+        return;
+    }
+
+    counter++;
+
+    // iga 3. on pikk küsimus
+    if (counter % 3 === 0 && kusimused.length > 0) {
+        isLong = true;
+
+        currentKey = kusimused.shift();
+
+        document.getElementById("question").innerText =
+            "Kirjuta vastus:\n\n" + currentKey;
+
+        return;
+    }
+
+    isLong = false;
+
+    currentKey = keys[Math.floor(Math.random() * keys.length)];
+    let value = sonad[currentKey];
+
+    if (Math.random() < 0.5) {
+        document.getElementById("question").innerText = "Tõlgi: " + currentKey;
+        correct = value;
+    } else {
+        document.getElementById("question").innerText = "Tõlgi: " + value;
+        correct = currentKey;
+    }
+}
+
+// ----------------- KONTROLL -----------------
+function check() {
+
+    let user = document.getElementById("answer").value.trim().toLowerCase();
+    document.getElementById("answer").value = "";
+
+    // PIKK KÜSIMUS → ainult salvestus
+    if (isLong) {
+        vastused.push({q: currentKey, a: user});
+        document.getElementById("result").innerText = "Vastus salvestatud ✔";
+        newQuestion();
+        return;
+    }
+
+    // SÕNAKÜSIMUS
+    if (user === correct) {
+        score++;
+        delete sonad[currentKey];
+        document.getElementById("result").innerText = "Õige! 🎉";
+    } else {
+        document.getElementById("result").innerText = "Vale!";
+    }
+
+    update();
+    newQuestion();
+}
+
+// ----------------- SKOOR -----------------
+function update() {
+    let left = Object.keys(sonad).length;
+    document.getElementById("score").innerText =
+        `Skoor: ${score}/${total} | Jäänud: ${left}`;
+}
+
+// ----------------- LÕPP -----------------
+function finish() {
+
+    document.getElementById("question").innerText = "TEST LÕPETATUD 🎉";
+
+    document.getElementById("answer").style.display = "none";
+    document.querySelector("button").style.display = "none";
+
+    document.getElementById("result").innerText =
+        "Lõppskoor: " + score + "/" + total;
+
+    let text = "\nPIKAD VASTUSED:\n\n";
+
+    for (let v of vastused) {
+        text += v.q + "\n→ " + v.a + "\n\n";
+    }
+
+    document.getElementById("long").innerText = text;
+}
+
+// start
+newQuestion();
+update();
+
+document.addEventListener("keydown", e => {
+    if (e.key === "Enter") check();
+});
+
+</script>
+
+</body>
+</html>
