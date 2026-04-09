@@ -8,15 +8,14 @@
 body {
     font-family: Arial;
     margin: 0;
-    background: #0d0d0d;   /* 🌑 tume taust */
-    color: #f5f5f5;
+    background: #ffffff;
+    color: #111;
     text-align: center;
     padding-top: 40px;
 }
 
 h1 {
     font-size: 42px;
-    color: #ffffff;
 }
 
 #question {
@@ -30,10 +29,8 @@ input {
     padding: 10px;
     width: 380px;
     border-radius: 8px;
-    border: 1px solid #333;
+    border: 1px solid #ccc;
     outline: none;
-    background: #1a1a1a;
-    color: #fff;
 }
 
 button {
@@ -43,18 +40,17 @@ button {
     border-radius: 8px;
     border: none;
     cursor: pointer;
-    background: #222;
-    color: #fff;
+    background: #f0f0f0;
 }
 
 button:hover {
-    background: #333;
+    background: #e0e0e0;
 }
 
 #result, #score {
     margin-top: 15px;
     font-size: 20px;
-    color: #ddd;
+    color: #333;
 }
 
 #list {
@@ -66,10 +62,10 @@ button:hover {
 }
 
 .word {
-    background: #1a1a1a;
+    background: #fafafa;
     padding: 10px;
     border-radius: 8px;
-    border: 1px solid #333;
+    border: 1px solid #ddd;
 }
 </style>
 </head>
@@ -169,10 +165,11 @@ function newQuestion() {
 
     if (keys.length === 0) {
         document.getElementById("question").innerText = "TEST LÕPETATUD 🎉";
+        document.getElementById("result").innerText = "";
         return;
     }
 
-    firstTry = true;
+    firstTry = true; // 🔥 oluline fix
 
     currentKey = keys[Math.floor(Math.random() * keys.length)];
     let value = sonad[currentKey];
@@ -194,19 +191,19 @@ function check() {
     let user = document.getElementById("answer").value.trim().toLowerCase();
     document.getElementById("answer").value = "";
 
-    if (user === "") return;
-
-    if (user !== correctAnswer.toLowerCase()) {
+    // ❌ VALE → sama küsimus uuesti
+    if (user !== correctAnswer) {
         document.getElementById("result").innerText =
             "Vale! Proovi uuesti 🔁";
         firstTry = false;
         return;
     }
 
+    // ✔ ÕIGE
     document.getElementById("result").innerText = "Õige! 🎉";
 
     if (firstTry === true) {
-        score++;
+        score = score + 1;
     }
 
     delete sonad[currentKey];
