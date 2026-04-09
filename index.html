@@ -8,14 +8,15 @@
 body {
     font-family: Arial;
     margin: 0;
-    background: #ffffff;
-    color: #111;
+    background: #0d0d0d;   /* 🌑 tume taust */
+    color: #f5f5f5;
     text-align: center;
     padding-top: 40px;
 }
 
 h1 {
     font-size: 42px;
+    color: #ffffff;
 }
 
 #question {
@@ -29,8 +30,10 @@ input {
     padding: 10px;
     width: 380px;
     border-radius: 8px;
-    border: 1px solid #ccc;
+    border: 1px solid #333;
     outline: none;
+    background: #1a1a1a;
+    color: #fff;
 }
 
 button {
@@ -40,17 +43,18 @@ button {
     border-radius: 8px;
     border: none;
     cursor: pointer;
-    background: #f0f0f0;
+    background: #222;
+    color: #fff;
 }
 
 button:hover {
-    background: #e0e0e0;
+    background: #333;
 }
 
 #result, #score {
     margin-top: 15px;
     font-size: 20px;
-    color: #333;
+    color: #ddd;
 }
 
 #list {
@@ -62,10 +66,10 @@ button:hover {
 }
 
 .word {
-    background: #fafafa;
+    background: #1a1a1a;
     padding: 10px;
     border-radius: 8px;
-    border: 1px solid #ddd;
+    border: 1px solid #333;
 }
 </style>
 </head>
@@ -190,7 +194,9 @@ function check() {
     let user = document.getElementById("answer").value.trim().toLowerCase();
     document.getElementById("answer").value = "";
 
-    if (user !== correctAnswer) {
+    if (user === "") return;
+
+    if (user !== correctAnswer.toLowerCase()) {
         document.getElementById("result").innerText =
             "Vale! Proovi uuesti 🔁";
         firstTry = false;
@@ -200,7 +206,7 @@ function check() {
     document.getElementById("result").innerText = "Õige! 🎉";
 
     if (firstTry === true) {
-        score = score + 1;
+        score++;
     }
 
     delete sonad[currentKey];
