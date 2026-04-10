@@ -8,242 +8,97 @@
 body {
     font-family: Arial;
     margin: 0;
-    background: #ffffff;
-    color: #111;
+    background: #121212;
+    color: #f1f1f1;
     text-align: center;
-    padding-top: 40px;
+    padding-top: 50px;
 }
 
 h1 {
-    font-size: 42px;
+    font-size: 40px;
 }
 
 #question {
-    font-size: 36px;
-    margin: 25px;
-    white-space: pre-line;
+    font-size: 28px;
+    margin: 30px;
 }
 
 input {
-    font-size: 24px;
     padding: 10px;
-    width: 380px;
+    font-size: 18px;
+    width: 250px;
     border-radius: 8px;
-    border: 1px solid #ccc;
+    border: none;
     outline: none;
 }
 
 button {
-    font-size: 20px;
-    padding: 10px 20px;
     margin-top: 15px;
-    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 18px;
     border: none;
+    border-radius: 8px;
+    background: #4CAF50;
+    color: white;
     cursor: pointer;
-    background: #f0f0f0;
 }
 
 button:hover {
-    background: #e0e0e0;
+    background: #45a049;
 }
 
-#result, #score {
-    margin-top: 15px;
+#result {
+    margin-top: 20px;
     font-size: 20px;
-    color: #333;
-}
-
-#list {
-    margin-top: 40px;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 10px;
-    padding: 20px;
-}
-
-.word {
-    background: #fafafa;
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid #ddd;
 }
 </style>
 </head>
 
 <body>
 
-<h1>Ladina Õppija</h1>
+<h1>Ladina keele õppimine</h1>
 
-<div id="question"></div>
+<div id="question">Laeb küsimust...</div>
 
-<input id="answer" autocomplete="off" />
+<input type="text" id="answer" placeholder="Sisesta tõlge">
 <br>
-<button onclick="check()">Kontrolli</button>
+<button onclick="checkAnswer()">Kontrolli</button>
 
 <div id="result"></div>
-<div id="score"></div>
-
-<h2>📚 Sõnaloend</h2>
-<div id="list"></div>
 
 <script>
+const words = [
+    { est: "armastus", lat: "amor" },
+    { est: "sõber", lat: "amicus" },
+    { est: "vesi", lat: "aqua" },
+    { est: "päike", lat: "sol" },
+    { est: "maa", lat: "terra" }
+];
 
-// ---------------- TÄIS LIST ----------------
-let sonad = {
-    medialis: "keskmine",
-    lateralis: "külgmine",
-    proximalis: "lähimine",
-    distalis: "kaugmine",
-    ülemine: "superior",
-    abaluu: "scapula",
-    rangluu: "clavicula",
-    õlavarreluu: "humerus",
-    küünarluu: "ulna",
-    kodarluu: "radius",
-    käeluud: "ossa manus",
-    randmeluud: "ossa carpi",
-    kämblaluud: "ossa metacarpalia",
-    sõrmede luud: "ossa digitorum manus",
-    puusaluu: "os coxae",
-    reieluu: "femur",
-    põlvekeder: "patella",
-    sääreluu: "tibia",
-    pindluu: "fibula",
-    jalaluud: "ossa pedis",
-    kannaluud: "ossa tarsi",
-    pöialluud: "ossa metatarsalia",
-    varvaste luud: "ossa digitorum pedis",
-    kiiruluu: "os parietale",
-    oimuluu: "os temporale",
-    ristluu: "os sacrum",
-    õndraluu: "os coccygis",
-    kiiluluu: "os sphenoidale",
-    sõelluu: "os ethmoidale",
-    ülalõualuu: "maxilla",
-    sarnaluu: "os zygomaticum",
-    ninaluu: "os nasale",
-    pisarluu: "os lacrimale",
-    suulaeluu: "os palatinum",
-    sahkluu: "vomer",
-    alalõualuu: "mandibula",
-    keeleluu: "os hyoideum",
-    õlaliiges: "articulatio humeri",
-    küünarliiges: "articulatio cubiti",
-    kodarluu randmeliiges: "articulatio radiocarpea",
-    puusaliiges: "articulatio coxae",
-    põlveliiges: "articulatio genus",
-    hüppeliiges: "articulatio talocruralis",
-    lülisammas: "columna vertebralis",
-    rinnak: "sternum",
-    roided: "costae",
-    trapetslihas: "musculus trapezius",
-    seljalihas: "latissimus dorsi",
-    vahelihas: "diaphragma",
-    mälurilihas: "musculus masseter",
-    oimulihas: "musculus temporalis",
-    peapööritaja: "musculus sternocleidomastoideus",
-    kaelanahalihas: "platysma",
-    deltalihas: "deltoideus",
-    õlavarre-kakspealihas: "biceps brachii",
-    õlavarre-kolmpealihas: "triceps brachii",
-    õlavarrelihas: "musculus brachialis"
-};
+let current;
 
-// ---------------- MUUTUJAD ----------------
-let keys = Object.keys(sonad);
-let currentKey = "";
-let correctAnswer = "";
-
-let score = 0;
-let firstTry = true;
-let total = keys.length;
-
-// ---------------- KÜSIMUS ----------------
 function newQuestion() {
-
-    keys = Object.keys(sonad);
-
-    if (keys.length === 0) {
-        document.getElementById("question").innerText = "TEST LÕPETATUD 🎉";
-        document.getElementById("result").innerText = "";
-        return;
-    }
-
-    firstTry = true; // 🔥 oluline fix
-
-    currentKey = keys[Math.floor(Math.random() * keys.length)];
-    let value = sonad[currentKey];
-
-    if (Math.random() < 0.5) {
-        document.getElementById("question").innerText =
-            "Tõlgi:\n\n" + currentKey;
-        correctAnswer = value;
-    } else {
-        document.getElementById("question").innerText =
-            "Tõlgi:\n\n" + value;
-        correctAnswer = currentKey;
-    }
-}
-
-// ---------------- KONTROLL ----------------
-function check() {
-
-    let user = document.getElementById("answer").value.trim().toLowerCase();
+    current = words[Math.floor(Math.random() * words.length)];
+    document.getElementById("question").innerText =
+        "Mis on ladina keeles: " + current.est + "?";
     document.getElementById("answer").value = "";
+    document.getElementById("result").innerText = "";
+}
 
-    // ❌ VALE → sama küsimus uuesti
-    if (user !== correctAnswer) {
+function checkAnswer() {
+    let userAnswer = document.getElementById("answer").value.toLowerCase();
+
+    if (userAnswer === current.lat) {
+        document.getElementById("result").innerText = "Õige! 👍";
+    } else {
         document.getElementById("result").innerText =
-            "Vale! Proovi uuesti 🔁";
-        firstTry = false;
-        return;
+            "Vale! Õige vastus on: " + current.lat;
     }
 
-    // ✔ ÕIGE
-    document.getElementById("result").innerText = "Õige! 🎉";
-
-    if (firstTry === true) {
-        score = score + 1;
-    }
-
-    delete sonad[currentKey];
-
-    update();
-    renderList();
-    newQuestion();
+    setTimeout(newQuestion, 2000);
 }
 
-// ---------------- UI ----------------
-function update() {
-    let left = Object.keys(sonad).length;
-
-    document.getElementById("score").innerText =
-        `Skoor: ${score} / ${total} | Jäänud: ${left}`;
-}
-
-// ---------------- LIST ----------------
-function renderList() {
-
-    let list = document.getElementById("list");
-    list.innerHTML = "";
-
-    for (let k in sonad) {
-        let div = document.createElement("div");
-        div.className = "word";
-        div.innerText = k + " = " + sonad[k];
-        list.appendChild(div);
-    }
-}
-
-// ---------------- START ----------------
 newQuestion();
-update();
-renderList();
-
-document.addEventListener("keydown", e => {
-    if (e.key === "Enter") check();
-});
-
 </script>
 
 </body>
